@@ -32,6 +32,7 @@ import org.picketbox.json.PicketBoxJSONMessages;
 import org.picketbox.json.exceptions.ProcessingException;
 import org.picketbox.json.util.Base64;
 import org.picketbox.json.util.HmacSha256Util;
+import org.picketbox.json.util.PicketBoxJSONUtil;
 
 /**
  * Represents a JSON Web Signature
@@ -96,6 +97,9 @@ public class JSONWebSignature {
      * @throws ProcessingException
      */
     public String encode() throws ProcessingException {
+        if (header == null) {
+            throw PicketBoxJSONMessages.MESSAGES.jsonWebSignatureHeaderMissing();
+        }
 
         if (HMAC_SHA_256.equals(header.getAlg())) {
             return encodeUsingHmacSha26();
@@ -161,21 +165,21 @@ public class JSONWebSignature {
     protected String encodeUsingHmacSha26() throws ProcessingException {
         try {
             // Encode the header
-            String base64EncodedHeader = Base64.encodeBytes(header.get().toString().getBytes("UTF-8"));
+            String base64EncodedHeader = PicketBoxJSONUtil.b64Encode(header.get().toString());
 
             // Encode the payload
-            String base64EncodedPayload = Base64.encodeBytes(payload.toString().getBytes("UTF-8"));
+            String base64EncodedPayload = PicketBoxJSONUtil.b64Encode(payload.toString());
 
             StringBuilder securedInput = new StringBuilder(base64EncodedHeader);
             securedInput.append(PERIOD).append(base64EncodedPayload);
 
             String sigValue = HmacSha256Util.encode(securedInput.toString());
 
-            String encodedSig = Base64.encodeBytes(sigValue.getBytes("UTF-8"));
+            String encodedSig = PicketBoxJSONUtil.b64Encode(sigValue);
 
             StringBuilder result = new StringBuilder();
             result.append(base64EncodedHeader).append(PERIOD).append(base64EncodedPayload).append(PERIOD).append(encodedSig);
-            return Base64.encodeBytes(result.toString().getBytes("UTF-8"));
+            return PicketBoxJSONUtil.b64Encode(result.toString());
         } catch (Exception e) {
             throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }

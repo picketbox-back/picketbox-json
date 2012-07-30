@@ -34,6 +34,7 @@ import org.picketbox.json.PicketBoxJSONConstants;
 import org.picketbox.json.PicketBoxJSONMessages;
 import org.picketbox.json.exceptions.ProcessingException;
 import org.picketbox.json.util.Base64;
+import org.picketbox.json.util.PicketBoxJSONUtil;
 
 /**
  * RSA based public key JSON representation
@@ -138,8 +139,8 @@ public class RSAKey implements JSONKey {
         BigInteger exponent = publicKey.getPublicExponent();
 
         RSAKey rsaKey = new RSAKey();
-        rsaKey.setMod(Base64.encodeBytes(modulus.toByteArray()));
-        rsaKey.setExp(Base64.encodeBytes(exponent.toByteArray()));
+        rsaKey.setMod(PicketBoxJSONUtil.b64Encode(modulus.toByteArray()));
+        rsaKey.setExp(PicketBoxJSONUtil.b64Encode(exponent.toByteArray()));
         return rsaKey;
     }
 
