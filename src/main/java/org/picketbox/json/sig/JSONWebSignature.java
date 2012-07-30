@@ -28,9 +28,9 @@ import java.io.UnsupportedEncodingException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.picketbox.core.util.Base64;
 import org.picketbox.json.PicketBoxJSONMessages;
 import org.picketbox.json.exceptions.ProcessingException;
+import org.picketbox.json.util.Base64;
 import org.picketbox.json.util.HmacSha256Util;
 
 /**

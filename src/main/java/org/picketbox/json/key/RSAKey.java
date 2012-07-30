@@ -30,10 +30,10 @@ import java.security.spec.RSAPublicKeySpec;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.picketbox.core.PicketBoxMessages;
-import org.picketbox.core.exceptions.ProcessingException;
-import org.picketbox.core.util.Base64;
 import org.picketbox.json.PicketBoxJSONConstants;
+import org.picketbox.json.PicketBoxJSONMessages;
+import org.picketbox.json.exceptions.ProcessingException;
+import org.picketbox.json.util.Base64;
 
 /**
  * RSA based public key JSON representation
@@ -97,7 +97,7 @@ public class RSAKey implements JSONKey {
     public void parse(JSONObject json) throws JSONException {
         String alg = json.getString(ALG);
         if (PicketBoxJSONConstants.RSA.equals(alg) == false) {
-            throw PicketBoxMessages.MESSAGES.wrongJsonKey();
+            throw PicketBoxJSONMessages.MESSAGES.wrongJsonKey();
         }
         kid = json.getString(PicketBoxJSONConstants.KID);
         mod = json.getString(PicketBoxJSONConstants.MOD);
@@ -158,7 +158,7 @@ public class RSAKey implements JSONKey {
             RSAPublicKeySpec kspec = new RSAPublicKeySpec(bigModulus, bigEx);
             return (RSAPublicKey) rsaKeyFactory.generatePublic(kspec);
         } catch (Exception e) {
-            throw PicketBoxMessages.MESSAGES.processingException(e);
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
     }
 
