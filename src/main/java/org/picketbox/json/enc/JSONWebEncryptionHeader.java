@@ -23,26 +23,23 @@ package org.picketbox.json.enc;
 
 import static org.picketbox.json.PicketBoxJSONConstants.COMMON.ALG;
 import static org.picketbox.json.PicketBoxJSONConstants.COMMON.ENC;
-import static org.picketbox.json.PicketBoxJSONConstants.JWS.SIGN_ALG_HS256;
-import static org.picketbox.json.PicketBoxJSONConstants.JWS.SIGN_ALG_HS384;
-import static org.picketbox.json.PicketBoxJSONConstants.JWS.SIGN_ALG_HS512;
 import static org.picketbox.json.PicketBoxJSONConstants.JWE.ENC_ALG_A128CBC;
 import static org.picketbox.json.PicketBoxJSONConstants.JWE.ENC_ALG_A192CBC;
 import static org.picketbox.json.PicketBoxJSONConstants.JWE.ENC_ALG_A256CBC;
 import static org.picketbox.json.PicketBoxJSONConstants.JWE.ENC_ALG_A512CBC;
-import static org.picketbox.json.PicketBoxJSONConstants.JWE.IV;
 import static org.picketbox.json.PicketBoxJSONConstants.JWE.INTEGRITY;
-
-import java.io.StringReader;
+import static org.picketbox.json.PicketBoxJSONConstants.JWE.IV;
+import static org.picketbox.json.PicketBoxJSONConstants.JWS.SIGN_ALG_HS256;
+import static org.picketbox.json.PicketBoxJSONConstants.JWS.SIGN_ALG_HS384;
+import static org.picketbox.json.PicketBoxJSONConstants.JWS.SIGN_ALG_HS512;
 
 import javax.crypto.Cipher;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.picketbox.json.exceptions.ProcessingException;
 import org.picketbox.json.PicketBoxJSONConstants;
 import org.picketbox.json.PicketBoxJSONMessages;
+import org.picketbox.json.exceptions.ProcessingException;
 
 /**
  * Represents the JSONWebEncryptionHeader
@@ -266,8 +263,7 @@ public class JSONWebEncryptionHeader {
      */
     public void load(String json) throws ProcessingException {
         try {
-            JSONTokener tokener = new JSONTokener(new StringReader(json));
-            JSONObject header = new JSONObject(tokener);
+            JSONObject header = new JSONObject(json);
             this.alg = header.getString(ALG);
             if (header.has(IV)) {
                 this.iv = header.getString(IV);

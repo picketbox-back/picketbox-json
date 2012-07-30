@@ -19,11 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketbox.json;
+package org.picketbox.json.key;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.picketbox.json.PicketBoxJSONConstants;
+import org.picketbox.json.PicketBoxJSONMessages;
 
 /**
  * Represents a JSON Web Key

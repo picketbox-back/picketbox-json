@@ -19,22 +19,43 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketbox.json.key;
+package org.picketbox.json.util;
+
+import java.io.UnsupportedEncodingException;
+
+import org.picketbox.json.PicketBoxJSONMessages;
+import org.picketbox.json.exceptions.ProcessingException;
 
 /**
- * Represents a Key in {@link JSONWebKey}
+ * Util class
  *
  * @author anil saldhana
- * @since Jul 24, 2012
+ * @since Jul 30, 2012
  */
-public interface JSONKey {
-    String getAlg();
+public class PicketBoxJSONUtil {
 
-    String getKid();
+    /**
+     * Base64 Encode without breaking lines
+     *
+     * @param str
+     * @return
+     * @throws ProcessingException
+     */
+    public static String b64Encode(String str) throws ProcessingException {
+        try {
+            return Base64.encodeBytes(str.getBytes("UTF-8"), Base64.DONT_BREAK_LINES);
+        } catch (UnsupportedEncodingException e) {
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
+        }
+    }
 
-    KeyUse getUse();
-
-    public enum KeyUse {
-        sig, enc
-    };
+    /**
+     * Base64 Encode without breaking lines
+     *
+     * @param str
+     * @return
+     */
+    public static String b64Encode(byte[] str) {
+        return Base64.encodeBytes(str, Base64.DONT_BREAK_LINES);
+    }
 }

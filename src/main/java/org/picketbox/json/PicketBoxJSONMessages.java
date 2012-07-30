@@ -90,4 +90,13 @@ public interface PicketBoxJSONMessages {
 
     @Message(id = 17, value = "Base64 input not properly padded")
     IOException invalidBase64Padding();
+
+    @Message(id = 18, value = "Invalid Number of tokens: %s")
+    IllegalArgumentException invalidNumberOfTokens(int num);
+
+    @Message(id = 19, value = "Does not match: %s")
+    RuntimeException doesNotMatch(String str);
+
+    @Message(id = 20, value = "JSON Web Signature header Missing")
+    RuntimeException jsonWebSignatureHeaderMissing();
 }

@@ -37,6 +37,7 @@ import org.bouncycastle.util.Arrays;
 import org.picketbox.json.PicketBoxJSONMessages;
 import org.picketbox.json.exceptions.ProcessingException;
 import org.picketbox.json.util.Base64;
+import org.picketbox.json.util.PicketBoxJSONUtil;
 
 /**
  * Represents JSON Web Encryption http://tools.ietf.org/html/draft-jones-json-web-encryption
@@ -114,9 +115,9 @@ public class JSONWebEncryption {
 
         // Encrypt using Recipient's public key to yield JWE Encrypted Key
         byte[] jweEncryptedKey = encryptKey(recipientPublicKey, contentMasterKey);
-        String encodedJWEKey = Base64.encodeBytes(jweEncryptedKey);
+        String encodedJWEKey = PicketBoxJSONUtil.b64Encode(jweEncryptedKey);
 
-        StringBuilder builder = new StringBuilder(Base64.encodeBytes(jsonWebEncryptionHeader.toString().getBytes()));
+        StringBuilder builder = new StringBuilder(PicketBoxJSONUtil.b64Encode(jsonWebEncryptionHeader.toString()));
         builder.append(PERIOD);
         builder.append(encodedJWEKey);
 
@@ -128,21 +129,21 @@ public class JSONWebEncryption {
             IvParameterSpec ivParameterSpec = new IvParameterSpec(jsonWebEncryptionHeader.getIv().getBytes());
 
             byte[] encryptedText = EncUtil.encryptUsingAES_CBC(plainText, cek, ivParameterSpec);
-            String encodedJWEText = Base64.encodeBytes(encryptedText);
+            String encodedJWEText = PicketBoxJSONUtil.b64Encode(encryptedText);
             builder.append(PERIOD);
             builder.append(encodedJWEText);
 
             int cikLength = jsonWebEncryptionHeader.getCIKLength();
             byte[] cik = generateCIK(contentEncryptionKey.getEncoded(), cikLength);
             byte[] integrityValue = performMac(cik, builder.toString().getBytes());
-            String encodedIntegrityValue = Base64.encodeBytes(integrityValue);
+            String encodedIntegrityValue = PicketBoxJSONUtil.b64Encode(integrityValue);
 
             builder.append(PERIOD);
             builder.append(encodedIntegrityValue);
         } else {
             // Encrypt the plain text
             byte[] encryptedText = encryptText(plainText, recipientPublicKey);
-            String encodedJWEText = Base64.encodeBytes(encryptedText);
+            String encodedJWEText = PicketBoxJSONUtil.b64Encode(encryptedText);
             builder.append(PERIOD);
             builder.append(encodedJWEText);
         }
@@ -190,11 +191,11 @@ public class JSONWebEncryption {
                 int cikLength = header.getCIKLength();
                 byte[] cik = generateCIK(secretKey, cikLength);
 
-                StringBuilder builder = new StringBuilder(Base64.encodeBytes(header.toString().getBytes()));
+                StringBuilder builder = new StringBuilder(PicketBoxJSONUtil.b64Encode(header.toString()));
                 builder.append(PERIOD).append(encodedKey).append(PERIOD).append(encodedValue);
 
                 byte[] integrityValue = performMac(cik, builder.toString().getBytes());
-                String encodedIntegrityValue = Base64.encodeBytes(integrityValue);
+                String encodedIntegrityValue = PicketBoxJSONUtil.b64Encode(integrityValue);
 
                 if (Arrays.constantTimeAreEqual(encodedIntegrityValue.getBytes(), encodedIntegrity.getBytes())) {
                     return new String(plainText);
