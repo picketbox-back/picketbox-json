@@ -40,9 +40,8 @@ import javax.crypto.Cipher;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.picketbox.core.PicketBoxMessages;
-import org.picketbox.core.exceptions.ProcessingException;
-import org.picketbox.core.json.PicketBoxJSONConstants;
+import org.picketbox.json.exceptions.ProcessingException;
+import org.picketbox.json.PicketBoxJSONConstants;
 import org.picketbox.json.PicketBoxJSONMessages;
 
 /**
@@ -193,17 +192,17 @@ public class JSONWebEncryptionHeader {
     }
 
     public Cipher getCipherBasedOnAlg() throws ProcessingException {
-        if (PicketBoxJSONConstants.JWE.RSAES_OAEP.equals(alg)) {
+        if (PicketBoxJSONConstants.JWE.ENC_ALG_RSA_OAEP.equals(alg)) {
             try {
                 return Cipher.getInstance("RSA/ECB/OAEPWithSHA1AndMGF1Padding");
             } catch (Exception e) {
-                throw PicketBoxMessages.MESSAGES.processingException(e);
+                throw PicketBoxJSONMessages.MESSAGES.processingException(e);
             }
-        } else if (PicketBoxJSONConstants.JWE.RSAES_PKCS1_V1_5.equals(alg)) {
+        } else if (PicketBoxJSONConstants.JWE.ENC_ALG_RSA1_5.equals(alg)) {
             try {
                 return Cipher.getInstance("RSA/ECB/PKCS1Padding");
             } catch (Exception e) {
-                throw PicketBoxMessages.MESSAGES.processingException(e);
+                throw PicketBoxJSONMessages.MESSAGES.processingException(e);
             }
         }
         return null;
@@ -214,7 +213,7 @@ public class JSONWebEncryptionHeader {
             try {
                 return Cipher.getInstance("AES/CBC/PKCS5Padding");
             } catch (Exception e) {
-                throw PicketBoxMessages.MESSAGES.processingException(e);
+                throw PicketBoxJSONMessages.MESSAGES.processingException(e);
             }
         }
         return null;
@@ -280,7 +279,7 @@ public class JSONWebEncryptionHeader {
                 this.enc = header.getString(ENC);
             }
         } catch (JSONException j) {
-            throw PicketBoxMessages.MESSAGES.processingException(j);
+            throw PicketBoxJSONMessages.MESSAGES.processingException(j);
         }
     }
 
