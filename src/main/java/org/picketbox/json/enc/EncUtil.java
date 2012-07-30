@@ -25,8 +25,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.picketbox.core.PicketBoxMessages;
-import org.picketbox.core.exceptions.ProcessingException;
+import org.picketbox.json.PicketBoxJSONMessages;
+import org.picketbox.json.exceptions.ProcessingException;
 
 public class EncUtil {
     public static final String AES = "AES";
@@ -36,7 +36,7 @@ public class EncUtil {
     public static byte[] encryptUsingAES_CBC(String plainText, byte[] key, IvParameterSpec parameters)
             throws ProcessingException {
         if (key == null || key.length == 0) {
-            throw PicketBoxMessages.MESSAGES.invalidNullArgument("key");
+            throw PicketBoxJSONMessages.MESSAGES.invalidNullArgument("key");
         }
         Cipher cipher = null;
         try {
@@ -45,14 +45,14 @@ public class EncUtil {
             cipher.init(Cipher.ENCRYPT_MODE, keyspec, parameters);
             return cipher.doFinal(plainText.getBytes());
         } catch (Exception e) {
-            throw PicketBoxMessages.MESSAGES.processingException(e);
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
     }
 
     public static byte[] decryptUsingAES_CBC(byte[] encryptedPlainText, byte[] key, IvParameterSpec parameters)
             throws ProcessingException {
         if (key == null || key.length == 0) {
-            throw PicketBoxMessages.MESSAGES.invalidNullArgument("key");
+            throw PicketBoxJSONMessages.MESSAGES.invalidNullArgument("key");
         }
         Cipher cipher = null;
         try {
@@ -61,7 +61,7 @@ public class EncUtil {
             cipher.init(Cipher.DECRYPT_MODE, keyspec, parameters);
             return cipher.doFinal(encryptedPlainText);
         } catch (Exception e) {
-            throw PicketBoxMessages.MESSAGES.processingException(e);
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
     }
 }

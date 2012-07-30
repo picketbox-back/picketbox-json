@@ -24,7 +24,6 @@ package org.picketbox.json;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.picketbox.core.PicketBoxMessages;
 
 /**
  * Represents a JSON Web Key
@@ -56,7 +55,7 @@ public class JSONWebKey {
      */
     public JSONObject getKey(String id) throws JSONException {
         if (keys == null) {
-            throw PicketBoxMessages.MESSAGES.jsonWebKeysMissing();
+            throw PicketBoxJSONMessages.MESSAGES.jsonWebKeysMissing();
         }
         int length = keys.length();
         for (int i = 0; i < length; i++) {
@@ -85,7 +84,7 @@ public class JSONWebKey {
      */
     public void parse(JSONObject jsonObj) throws JSONException {
         if (jsonObj == null) {
-            throw PicketBoxMessages.MESSAGES.invalidNullArgument("obj");
+            throw PicketBoxJSONMessages.MESSAGES.invalidNullArgument("obj");
         }
         keys = jsonObj.getJSONArray(PicketBoxJSONConstants.KEYS);
     }

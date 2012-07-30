@@ -26,9 +26,8 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.picketbox.core.PicketBoxMessages;
-import org.picketbox.core.exceptions.ProcessingException;
 import org.picketbox.json.PicketBoxJSONMessages;
+import org.picketbox.json.exceptions.ProcessingException;
 
 /**
  * <p>
@@ -53,7 +52,7 @@ public class ConcatenationKeyDerivation {
         try {
             md = MessageDigest.getInstance(hashAlg);
         } catch (NoSuchAlgorithmException e) {
-            throw PicketBoxMessages.MESSAGES.processingException(e);
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
     }
 

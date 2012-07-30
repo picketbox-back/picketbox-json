@@ -34,10 +34,9 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.util.Arrays;
-import org.picketbox.core.PicketBoxMessages;
-import org.picketbox.core.exceptions.ProcessingException;
-import org.picketbox.core.util.Base64;
 import org.picketbox.json.PicketBoxJSONMessages;
+import org.picketbox.json.exceptions.ProcessingException;
+import org.picketbox.json.util.Base64;
 
 /**
  * Represents JSON Web Encryption http://tools.ietf.org/html/draft-jones-json-web-encryption
@@ -82,7 +81,7 @@ public class JSONWebEncryption {
             throw PicketBoxJSONMessages.MESSAGES.invalidNullArgument("plainText");
         }
         if (recipientPublicKey == null) {
-            throw PicketBoxMessages.MESSAGES.invalidNullArgument("recipientPublicKey");
+            throw PicketBoxJSONMessages.MESSAGES.invalidNullArgument("recipientPublicKey");
         }
         byte[] contentMasterKey = createContentMasterKey();
         return encrypt(plainText, recipientPublicKey, contentMasterKey);
@@ -212,7 +211,7 @@ public class JSONWebEncryption {
 
             return new String(plainText);
         } catch (Exception e) {
-            throw PicketBoxMessages.MESSAGES.processingException(e);
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
     }
 
@@ -223,7 +222,7 @@ public class JSONWebEncryption {
 
             return cipher.doFinal(plainText.getBytes());
         } catch (Exception e) {
-            throw PicketBoxMessages.MESSAGES.processingException(e);
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
     }
 
@@ -234,7 +233,7 @@ public class JSONWebEncryption {
 
             return cipher.doFinal(contentMasterKey);
         } catch (Exception e) {
-            throw PicketBoxMessages.MESSAGES.processingException(e);
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
     }
 
@@ -245,7 +244,7 @@ public class JSONWebEncryption {
 
             return cipher.doFinal(encryptedKey);
         } catch (Exception e) {
-            throw PicketBoxMessages.MESSAGES.processingException(e);
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
     }
 
@@ -281,7 +280,7 @@ public class JSONWebEncryption {
             mac.update(data);
             return mac.doFinal();
         } catch (Exception e) {
-            throw PicketBoxMessages.MESSAGES.processingException(e);
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
     }
 }

@@ -21,6 +21,8 @@
  */
 package org.picketbox.json;
 
+import java.io.IOException;
+
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
@@ -64,4 +66,28 @@ public interface PicketBoxJSONMessages {
 
     @Message(id = 9, value = "JSON Encryption Header Missing.")
     IllegalStateException jsonEncryptionHeaderMissing();
+
+    @Message(id = 10, value = "Invalid Base64 character found: %s")
+    RuntimeException invalidBase64CharacterMessage(byte character);
+
+    @Message(id = 11, value = "Error reading Base64 stream: nothing to read")
+    IOException errorReadingBase64Stream();
+
+    @Message(id = 12, value = "Error decoding from file %s")
+    IllegalStateException errorDecodingFromFile(String fileName, @Cause Throwable throwable);
+
+    @Message(id = 13, value = "Error decoding from file %s: file is too big (%s bytes)")
+    IllegalStateException errorDecodingFromBigInputFile(String fileName, long fileSize);
+
+    @Message(id = 14, value = "JSON Web Keys Missing.")
+    RuntimeException jsonWebKeysMissing();
+
+    @Message(id = 15, value = "Wrong Type of JSON Key.")
+    RuntimeException wrongJsonKey();
+
+    @Message(id = 16, value = "Error encoding from file %s")
+    IllegalStateException errorEncodingFromFile(String fileName, @Cause Throwable throwable);
+
+    @Message(id = 17, value = "Base64 input not properly padded")
+    IOException invalidBase64Padding();
 }

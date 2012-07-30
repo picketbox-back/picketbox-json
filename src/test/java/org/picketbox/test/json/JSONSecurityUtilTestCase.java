@@ -33,9 +33,9 @@ import java.security.interfaces.RSAPublicKey;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Test;
-import org.picketbox.core.json.JSONWebKey;
-import org.picketbox.core.json.PicketBoxJSONConstants;
-import org.picketbox.core.json.RSAKey;
+import org.picketbox.json.JSONWebKey;
+import org.picketbox.json.PicketBoxJSONConstants;
+import org.picketbox.json.key.RSAKey;
 import org.picketbox.json.sig.JSONWebSignature;
 import org.picketbox.json.sig.JSONWebSignatureHeader;
 
