@@ -45,6 +45,19 @@ public class JSONWebSignature {
     protected JSONWebSignatureHeader header;
 
     /**
+     * Create an attached header
+     *
+     * @param alg
+     * @return
+     */
+    public JSONWebSignatureHeader createHeader(String alg) {
+        if (header == null) {
+            header = new JSONWebSignatureHeader(alg);
+        }
+        return header;
+    }
+
+    /**
      * Get the JSON Payload
      *
      * @return
@@ -114,14 +127,7 @@ public class JSONWebSignature {
      * @throws ProcessingException
      */
     public static JSONWebSignature decode(String encoded) throws ProcessingException {
-        String decodedOverall = null;
-        try {
-            decodedOverall = new String(Base64.decode(encoded), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
-        }
-
-        String[] tokens = decodedOverall.split("\\.");
+        String[] tokens = encoded.split("\\.");
 
         String encodedHeader = tokens[0];
         String encodedPayload = tokens[1];
@@ -173,7 +179,7 @@ public class JSONWebSignature {
 
             StringBuilder result = new StringBuilder();
             result.append(base64EncodedHeader).append(PERIOD).append(base64EncodedPayload).append(PERIOD).append(encodedSig);
-            return PicketBoxJSONUtil.b64Encode(result.toString());
+            return result.toString();
         } catch (Exception e) {
             throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }

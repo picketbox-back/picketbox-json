@@ -21,7 +21,11 @@
  */
 package org.picketbox.json.token;
 
+import static org.picketbox.json.PicketBoxJSONConstants.COMMON.ALG;
+import static org.picketbox.json.PicketBoxJSONConstants.COMMON.PERIOD;
+
 import java.security.PrivateKey;
+import java.security.PublicKey;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,8 +53,51 @@ public class JSONWebToken {
 
     private PrivateKey privateKey;
 
+    private PublicKey publicKey;
+
+    /**
+     * Get the {@link PublicKey} for signature
+     *
+     * @return
+     */
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
+
+    /**
+     * Set the {@link PublicKey} for signature
+     *
+     * @param publicKey
+     */
+    public void setPublicKey(PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    /**
+     * Get the Plain Text
+     *
+     * @return
+     */
     public String getPlainText() {
         return plainText;
+    }
+
+    /**
+     * Set the Plain Text
+     *
+     * @param plainText
+     */
+    public void setPlainText(String plainText) {
+        this.plainText = plainText;
+    }
+
+    /**
+     * Set the JWT Header
+     *
+     * @param header
+     */
+    public void setHeader(JSONObject header) {
+        this.header = header;
     }
 
     /**
@@ -71,12 +118,85 @@ public class JSONWebToken {
         return data;
     }
 
+    /**
+     * Set the data
+     *
+     * @param data
+     */
+    public void setData(JSONObject data) {
+        this.data = data;
+    }
+
+    /**
+     * Get the Private Key
+     *
+     * @return
+     */
     public PrivateKey getPrivateKey() {
         return privateKey;
     }
 
+    /**
+     * Set the Private Key for encryption
+     *
+     * @param privateKey
+     */
     public void setPrivateKey(PrivateKey privateKey) {
         this.privateKey = privateKey;
+    }
+
+    /**
+     * Encode the JWT
+     *
+     * @return
+     * @throws ProcessingException
+     */
+    public String encode() throws ProcessingException {
+        if (header == null) {
+            throw PicketBoxJSONMessages.MESSAGES.jsonWebSignatureHeaderMissing();
+        }
+        try {
+            String alg = header.getString(PicketBoxJSONConstants.COMMON.ALG);
+            if ("none".equals(alg)) {
+                // Plain Text JWT
+                String encodedHeader = PicketBoxJSONUtil.b64Encode(header.toString());
+                String encodedText = PicketBoxJSONUtil.b64Encode(data.toString());
+                StringBuilder builder = new StringBuilder();
+                builder.append(encodedHeader).append(PERIOD).append(encodedText);
+
+                return builder.toString();
+            } // Process the header now
+            else if (header.has("enc")) {
+                // JWE usecase
+
+                JSONWebEncryption jsonWebEnc = new JSONWebEncryption();
+                JSONWebEncryptionHeader encHeader = jsonWebEnc.createHeader();
+                encHeader.setDelegate(header);
+
+                return jsonWebEnc.encrypt(alg, publicKey);
+            } else {
+                // sig usecase
+                JSONWebSignature jsonWebSignature = new JSONWebSignature();
+                JSONWebSignatureHeader jsonSigHeader = new JSONWebSignatureHeader(header.getString(ALG));
+                jsonWebSignature.setHeader(jsonSigHeader);
+
+                jsonWebSignature.setPayload(data);
+
+                return jsonWebSignature.encode();
+            }
+        } catch (Exception e) {
+            throw PicketBoxJSONMessages.MESSAGES.processingException(e);
+        }
+    }
+
+    /**
+     * Decode the JWT string
+     *
+     * @param tokenString
+     * @throws ProcessingException
+     */
+    public void decode(String tokenString) throws ProcessingException {
+        load(tokenString);
     }
 
     /**
@@ -117,9 +237,8 @@ public class JSONWebToken {
                 plainText = jsonWebEnc.decrypt(tokenString, privateKey);
                 return;
             } else {
-                String encodedString = PicketBoxJSONUtil.b64Encode(tokenString);
                 // sig usecase
-                JSONWebSignature jsonWebSignature = JSONWebSignature.decode(encodedString);
+                JSONWebSignature jsonWebSignature = JSONWebSignature.decode(tokenString);
                 header = jsonWebSignature.getHeader().get();
                 data = jsonWebSignature.getPayload();
             }
