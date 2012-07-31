@@ -21,14 +21,19 @@
  */
 package org.picketbox.json.token;
 
+import java.security.PrivateKey;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picketbox.json.PicketBoxJSONConstants;
 import org.picketbox.json.PicketBoxJSONMessages;
+import org.picketbox.json.enc.JSONWebEncryption;
+import org.picketbox.json.enc.JSONWebEncryptionHeader;
 import org.picketbox.json.exceptions.ProcessingException;
 import org.picketbox.json.sig.JSONWebSignature;
 import org.picketbox.json.sig.JSONWebSignatureHeader;
 import org.picketbox.json.util.Base64;
+import org.picketbox.json.util.PicketBoxJSONUtil;
 
 /**
  * Represents a JSON Web Token
@@ -39,7 +44,14 @@ import org.picketbox.json.util.Base64;
 public class JSONWebToken {
     private JSONObject header;
     private JSONObject data;
-    private String third, fourth = null;
+    private String plainText = null;
+    private String third = null;
+
+    private PrivateKey privateKey;
+
+    public String getPlainText() {
+        return plainText;
+    }
 
     /**
      * Get the header
@@ -59,6 +71,14 @@ public class JSONWebToken {
         return data;
     }
 
+    public PrivateKey getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(PrivateKey privateKey) {
+        this.privateKey = privateKey;
+    }
+
     /**
      * Load the token from a formatted string
      *
@@ -67,25 +87,42 @@ public class JSONWebToken {
      */
     public void load(String tokenString) throws ProcessingException {
         String[] tokens = tokenString.split("\\.");
+        String payload = null;
+
         int len = tokens.length;
-
-        if (len > 4)
-            throw PicketBoxJSONMessages.MESSAGES.invalidNumberOfTokens(tokens.length);
-        String headerStr = new String(Base64.decode(tokens[0]));
-        String payload = new String(Base64.decode(tokens[1]));
-
-        if (len > 2) {
-            third = tokens[2];
-        }
-        if (len > 3) {
-            fourth = tokens[3];
-        }
         try {
+
+            if (len > 4)
+                throw PicketBoxJSONMessages.MESSAGES.invalidNumberOfTokens(tokens.length);
+            String headerStr = new String(Base64.decode(tokens[0]));
             // Process the header
             header = new JSONObject(headerStr);
 
-            // Process the payload
-            data = new JSONObject(payload);
+            if ("none".equals(header.getString(PicketBoxJSONConstants.COMMON.ALG))) {
+                payload = new String(Base64.decode(tokens[1]));
+                // Process the payload
+                data = new JSONObject(payload);
+                return;
+            }
+
+            // Process the header now
+            if (header.has("enc")) {
+                // JWE usecase
+
+                JSONWebEncryption jsonWebEnc = new JSONWebEncryption();
+                JSONWebEncryptionHeader encHeader = new JSONWebEncryptionHeader();
+                encHeader.load(headerStr);
+                jsonWebEnc.setJsonWebEncryptionHeader(encHeader);
+
+                plainText = jsonWebEnc.decrypt(tokenString, privateKey);
+                return;
+            } else {
+                String encodedString = PicketBoxJSONUtil.b64Encode(tokenString);
+                // sig usecase
+                JSONWebSignature jsonWebSignature = JSONWebSignature.decode(encodedString);
+                header = jsonWebSignature.getHeader().get();
+                data = jsonWebSignature.getPayload();
+            }
         } catch (JSONException e) {
             throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }

@@ -23,9 +23,14 @@ package org.picketbox.test.json;
 
 import static org.junit.Assert.assertEquals;
 
+import java.security.PrivateKey;
+
 import org.json.JSONObject;
 import org.junit.Test;
+import org.picketbox.json.sig.JSONWebSignature;
+import org.picketbox.json.sig.JSONWebSignatureHeader;
 import org.picketbox.json.token.JSONWebToken;
+import org.picketbox.json.util.Base64;
 
 /**
  * Unit test the {@link JSONWebToken}
@@ -52,20 +57,29 @@ public class JSONWebTokenTestCase {
         assertEquals("true", data.getString("http://example.com/is_root"));
     }
 
+    /**
+     * Test the JWT with MAC usecase
+     * @throws Exception
+     */
     @Test
     public void testJWTWithMAC() throws Exception {
-        String header = "{\"typ\":\"JWT\",\"alg\":\"HS256\"}";
+        
+        String headerStr = "{\"typ\":\"JWT\",\"alg\":\"HS256\"}";
         String text = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}";
 
-        String token = "eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9."
-                + "eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ=="
-                + ".ZXlKaGJHY2lPaUpJVXpJMU5pSjkuZXlKbGVIQWlPakV6TURBNE1Ua3pPREFzSW1oMGRIQTZMeTlsZUdGdGNHeGxMbU52Yl"
-                + "M5cGMxOXliMjkwSWpwMGNuVmxMQ0pwYzNNaU9pSnFiMlVpZlE9PS5Zemt4T1RnM09USTNaRGc0T1dWa1kyRXdNV00wWWpneFl"
-                + "qSTNOamhtWkRrM016QTJPREExWlRkallUSTNObU5pWTJJeFltUm1aRGsxWldOalltWXdZdz09";
+        JSONWebSignature sig = new JSONWebSignature();
+        JSONObject payload = new JSONObject(text);
 
+        sig.setPayload(payload);
+        JSONWebSignatureHeader header = JSONWebSignatureHeader.create(headerStr);
+        sig.setHeader(header);
+
+        String tokenValue = sig.encode();
+        
+        String base64Decoded = new String(Base64.decode(tokenValue));
+        
         JSONWebToken jwt = new JSONWebToken();
-        jwt.load(token);
-        jwt.validate();
+        jwt.load(base64Decoded);
 
         JSONObject headerObj = new JSONObject(header);
         JSONObject textObj = new JSONObject(text);
@@ -73,10 +87,36 @@ public class JSONWebTokenTestCase {
         JSONObject jwtHeader = jwt.getHeader();
         JSONObject jwtData = jwt.getData();
 
-        assertEquals(headerObj.getString("typ"), jwtHeader.getString("typ"));
         assertEquals(headerObj.getString("alg"), jwtHeader.getString("alg"));
 
         assertEquals(textObj.getString("iss"), jwtData.getString("iss"));
         assertEquals(textObj.getString("exp"), jwtData.getString("exp"));
+    }
+    
+    @Test
+    public void testJWTWithEnc() throws Exception{
+        String header = "{\"alg\":\"RSA1_5\",\"enc\":\"A128CBC\",\"int\":\"HS256\",\"iv\":\"AxY8DCtDaGlsbGljb3RoZQ\"}";
+        
+        String token = "eyJhbGciOiJSU0ExXzUiLCJpdiI6IjQ4VjFfQUxiNlVTMDRVM2IiLCJpbnQiOiJIUzI1NiIsImVuYyI6IkExMjhDQkMifQ==."
+                +"C6s7/YmGL6P6Cp4ylJIuMo41vHs/OBrmVmuZYQepeq/e8JsE4ffe7g29mvA1BtDUFQwuRDb1BHAPMZaoC8al/4mq4lpeOhxriY1gp"
+                +"lKthw1O9/GfiBPP0Yf/Tiyqe9nFQscA00awfV0zLq9qhdZWI3AZJeIZJ8D1JA0rFkbnS/HFHey8iI9KhNIc1zLatnMVjB+vywpK0Lmxv"
+                +"maXXlE59o7khAF1MRwL4e+XTTRm02Q1Ye06HVLbq0dzVmQyPyrnWzoTPduLMxTb/MafS9BN5WdtL8q8DkadQUmA65sOSCcBPaGdxNdWoa"
+                +"OPe8ERYKAqJGtLGRyafZaxd9ldI57GNg==.xpurSbWBpEGuGt4huHJ5ZHhggDV7PASWAz06rgCwCDvc+IgVM6HucUHSCvvvqn5/NVRNS2la2"
+                +"Kva9+7dT1zUPB+HcmgxN7VJs0NKiWS8iZc=.PHEnSewy1m7BwZnQPYPkxTv+bv3/o5Rpf1ToevCaZiU=";
+        
+        JSONWebEncryptionTestCase test = new JSONWebEncryptionTestCase();
+        PrivateKey privateKey = test.getPrivateKey();
+        
+        JSONWebToken jwt = new JSONWebToken();
+        jwt.setPrivateKey(privateKey);
+        jwt.load(token);
+
+        JSONObject headerObj = new JSONObject(header);
+
+        JSONObject jwtHeader = jwt.getHeader();
+
+        assertEquals(headerObj.getString("alg"), jwtHeader.getString("alg"));
+        
+        assertEquals("Now is the time for all good men to come to the aid of their country.", jwt.getPlainText());
     }
 }
