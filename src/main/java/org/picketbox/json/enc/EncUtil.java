@@ -28,6 +28,11 @@ import javax.crypto.spec.SecretKeySpec;
 import org.picketbox.json.PicketBoxJSONMessages;
 import org.picketbox.json.exceptions.ProcessingException;
 
+/**
+ * Utility for encryption
+ * @author anil saldhana
+ * @since Jul 30, 2012
+ */
 public class EncUtil {
     public static final String AES = "AES";
     public static final String AES_CBC = "AES/CBC/PKCS5Padding";

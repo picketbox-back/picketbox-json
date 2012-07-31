@@ -34,6 +34,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.util.Arrays;
+import org.json.JSONException;
 import org.picketbox.json.PicketBoxJSONMessages;
 import org.picketbox.json.exceptions.ProcessingException;
 import org.picketbox.json.util.Base64;
@@ -126,7 +127,13 @@ public class JSONWebEncryption {
             byte[] cek = generateCEK(contentEncryptionKey.getEncoded(), cekLength);
 
             // Deal with IV
-            IvParameterSpec ivParameterSpec = new IvParameterSpec(jsonWebEncryptionHeader.getIv().getBytes());
+            String iv;
+            try {
+                iv = jsonWebEncryptionHeader.getDelegate().getString("iv");
+            } catch (JSONException e) {
+                throw PicketBoxJSONMessages.MESSAGES.ignorableError(e);
+            }
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv.getBytes());
 
             byte[] encryptedText = EncUtil.encryptUsingAES_CBC(plainText, cek, ivParameterSpec);
             String encodedJWEText = PicketBoxJSONUtil.b64Encode(encryptedText);
@@ -183,7 +190,16 @@ public class JSONWebEncryption {
 
                 int cekLength = header.getCEKLength();
                 byte[] cek = generateCEK(secretKey, cekLength);
-                IvParameterSpec ivParameter = new IvParameterSpec(header.getIv().getBytes());
+
+                // Deal with IV
+                String iv;
+                try {
+                    iv = header.getDelegate().getString("iv");
+                } catch (JSONException e) {
+                    throw PicketBoxJSONMessages.MESSAGES.ignorableError(e);
+                }
+
+                IvParameterSpec ivParameter = new IvParameterSpec(iv.getBytes());
 
                 byte[] decodedText = Base64.decode(encodedValue);
                 byte[] plainText = EncUtil.decryptUsingAES_CBC(decodedText, cek, ivParameter);
@@ -275,7 +291,7 @@ public class JSONWebEncryption {
     private byte[] performMac(byte[] key, byte[] data) throws ProcessingException {
         Mac mac = null;
         try {
-            mac = Mac.getInstance(jsonWebEncryptionHeader.getMessageAuthenticationCode());
+            mac = Mac.getInstance(jsonWebEncryptionHeader.getMessageAuthenticationCodeAlgo());
 
             mac.init(new SecretKeySpec(key, mac.getAlgorithm()));
             mac.update(data);
