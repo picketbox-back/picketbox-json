@@ -179,6 +179,9 @@ public class JSONWebEncryption {
      * @throws ProcessingException
      */
     public String decrypt(String encryptedText, PrivateKey privateKey) throws ProcessingException {
+        if (privateKey == null) {
+            throw PicketBoxJSONMessages.MESSAGES.invalidNullArgument("privateKey");
+        }
         try {
             String[] splitBits = encryptedText.split("\\.");
             int length = splitBits.length;
@@ -245,6 +248,9 @@ public class JSONWebEncryption {
     }
 
     private byte[] encryptText(String plainText, PublicKey recipientPublicKey) throws ProcessingException {
+        if (recipientPublicKey == null) {
+            throw PicketBoxJSONMessages.MESSAGES.invalidNullArgument("recipientPublicKey");
+        }
         try {
             Cipher cipher = jsonWebEncryptionHeader.getCipherBasedOnAlg();
             cipher.init(Cipher.ENCRYPT_MODE, recipientPublicKey);
@@ -256,6 +262,9 @@ public class JSONWebEncryption {
     }
 
     private byte[] encryptKey(PublicKey publicKey, byte[] contentMasterKey) throws ProcessingException {
+        if (publicKey == null) {
+            throw PicketBoxJSONMessages.MESSAGES.invalidNullArgument("publicKey");
+        }
         try {
             Cipher cipher = jsonWebEncryptionHeader.getCipherBasedOnAlg();
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
@@ -267,6 +276,9 @@ public class JSONWebEncryption {
     }
 
     private byte[] decryptKey(PrivateKey privateKey, byte[] encryptedKey) throws ProcessingException {
+        if (privateKey == null) {
+            throw PicketBoxJSONMessages.MESSAGES.invalidNullArgument("privateKey");
+        }
         try {
             Cipher cipher = jsonWebEncryptionHeader.getCipherBasedOnAlg();
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
@@ -286,6 +298,15 @@ public class JSONWebEncryption {
         return UUID.randomUUID().toString().getBytes();
     }
 
+    /**
+     * Content Integrity Key (CIK) A key used with a MAC function to ensure the integrity of the Ciphertext and the parameters
+     * used to create it.
+     *
+     * @param keyBytes
+     * @param cikByteLength
+     * @return
+     * @throws ProcessingException
+     */
     private byte[] generateCIK(byte[] keyBytes, int cikByteLength) throws ProcessingException {
         // "Integrity"
         final byte[] otherInfo = { 73, 110, 116, 101, 103, 114, 105, 116, 121 };
@@ -293,6 +314,14 @@ public class JSONWebEncryption {
         return kdfGen.concatKDF(keyBytes, cikByteLength, otherInfo);
     }
 
+    /**
+     * Content Encryption Key (CEK) A symmetric key used to encrypt the Plaintext for the recipient to produce the Ciphertext.
+     *
+     * @param keyBytes
+     * @param cekByteLength
+     * @return
+     * @throws ProcessingException
+     */
     private byte[] generateCEK(byte[] keyBytes, int cekByteLength) throws ProcessingException {
         // "Encryption"
         final byte[] otherInfo = { 69, 110, 99, 114, 121, 112, 116, 105, 111, 110 };

@@ -23,6 +23,8 @@ package org.picketbox.test.json;
 
 import static org.junit.Assert.assertEquals;
 
+import java.security.PublicKey;
+
 import org.json.JSONObject;
 import org.junit.Test;
 import org.picketbox.json.token.JSONWebToken;
@@ -85,6 +87,38 @@ public class JSONWebTokenAPITestCase {
 
         // Let us decode
         jwt = new JSONWebToken();
+        jwt.load(encodedJWT);
+
+        assertEquals("joe", jwt.getData().getString("iss"));
+    }
+
+    /**
+     * Test the JWT API for encryption use case
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testJWEAPI() throws Exception {
+        String headerStr = "{\"alg\":\"RSA1_5\",\"enc\":\"A128CBC\",\"int\":\"HS256\",\"iv\":\"48V1_ALb6US04U3b\"}";
+        String text = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}";
+
+        JSONWebEncryptionTestCase jweTest = new JSONWebEncryptionTestCase();
+        PublicKey publicKey = jweTest.getPublicKey();
+
+        JSONWebToken jwt = new JSONWebToken();
+        jwt.setData(new JSONObject(text));
+        jwt.setPublicKey(publicKey);
+
+        // Let us create the header
+        JSONObject header = new JSONObject(headerStr);
+        jwt.setHeader(header);
+
+        String encodedJWT = jwt.encode();
+        System.out.println(encodedJWT);
+
+        // Let us decode
+        jwt = new JSONWebToken();
+        jwt.setPrivateKey(jweTest.getPrivateKey());
         jwt.load(encodedJWT);
 
         assertEquals("joe", jwt.getData().getString("iss"));

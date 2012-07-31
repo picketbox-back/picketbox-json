@@ -173,7 +173,7 @@ public class JSONWebToken {
                 JSONWebEncryptionHeader encHeader = jsonWebEnc.createHeader();
                 encHeader.setDelegate(header);
 
-                return jsonWebEnc.encrypt(alg, publicKey);
+                return jsonWebEnc.encrypt(data.toString(), publicKey);
             } else {
                 // sig usecase
                 JSONWebSignature jsonWebSignature = new JSONWebSignature();
@@ -235,6 +235,10 @@ public class JSONWebToken {
                 jsonWebEnc.setJsonWebEncryptionHeader(encHeader);
 
                 plainText = jsonWebEnc.decrypt(tokenString, privateKey);
+                try {
+                    data = new JSONObject(plainText);
+                } catch (JSONException ignore) {
+                }
                 return;
             } else {
                 // sig usecase
