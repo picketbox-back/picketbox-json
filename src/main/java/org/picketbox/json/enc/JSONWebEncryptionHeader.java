@@ -58,6 +58,15 @@ public class JSONWebEncryptionHeader {
     }
 
     /**
+     * Set the underlying {@link JSONObject}
+     *
+     * @param delegate
+     */
+    public void setDelegate(JSONObject delegate) {
+        this.delegate = delegate;
+    }
+
+    /**
      * Check if there is a need for integrity value
      *
      * @return

@@ -44,7 +44,7 @@ import org.picketbox.json.sig.JSONWebSignatureHeader;
  * @author anil saldhana
  * @since Jul 24, 2012
  */
-public class JSONSecurityUtilTestCase {
+public class JSONSecurityTestCase {
     @Test
     public void parseJSONWebKey() throws Exception {
         URL url = getClass().getClassLoader().getResource("json/jsonWebKey.json");

@@ -50,6 +50,18 @@ public class JSONWebEncryption {
     protected JSONWebEncryptionHeader jsonWebEncryptionHeader;
 
     /**
+     * Create an attached Header
+     *
+     * @return
+     */
+    public JSONWebEncryptionHeader createHeader() {
+        if (jsonWebEncryptionHeader == null) {
+            jsonWebEncryptionHeader = new JSONWebEncryptionHeader();
+        }
+        return jsonWebEncryptionHeader;
+    }
+
+    /**
      * Get the {@link JSONWebEncryptionHeader}
      *
      * @return

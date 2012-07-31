@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.picketbox.json.sig.JSONWebSignature;
 import org.picketbox.json.sig.JSONWebSignatureHeader;
 import org.picketbox.json.token.JSONWebToken;
-import org.picketbox.json.util.Base64;
 
 /**
  * Unit test the {@link JSONWebToken}
@@ -39,6 +38,7 @@ import org.picketbox.json.util.Base64;
  * @since Jul 30, 2012
  */
 public class JSONWebTokenTestCase {
+
     /**
      * Test the Plaintext JWT usecase
      *
@@ -59,11 +59,12 @@ public class JSONWebTokenTestCase {
 
     /**
      * Test the JWT with MAC usecase
+     *
      * @throws Exception
      */
     @Test
     public void testJWTWithMAC() throws Exception {
-        
+
         String headerStr = "{\"typ\":\"JWT\",\"alg\":\"HS256\"}";
         String text = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}";
 
@@ -75,11 +76,9 @@ public class JSONWebTokenTestCase {
         sig.setHeader(header);
 
         String tokenValue = sig.encode();
-        
-        String base64Decoded = new String(Base64.decode(tokenValue));
-        
+
         JSONWebToken jwt = new JSONWebToken();
-        jwt.load(base64Decoded);
+        jwt.load(tokenValue);
 
         JSONObject headerObj = new JSONObject(header);
         JSONObject textObj = new JSONObject(text);
@@ -92,21 +91,21 @@ public class JSONWebTokenTestCase {
         assertEquals(textObj.getString("iss"), jwtData.getString("iss"));
         assertEquals(textObj.getString("exp"), jwtData.getString("exp"));
     }
-    
+
     @Test
-    public void testJWTWithEnc() throws Exception{
+    public void testJWTWithEnc() throws Exception {
         String header = "{\"alg\":\"RSA1_5\",\"enc\":\"A128CBC\",\"int\":\"HS256\",\"iv\":\"AxY8DCtDaGlsbGljb3RoZQ\"}";
-        
+
         String token = "eyJhbGciOiJSU0ExXzUiLCJpdiI6IjQ4VjFfQUxiNlVTMDRVM2IiLCJpbnQiOiJIUzI1NiIsImVuYyI6IkExMjhDQkMifQ==."
-                +"C6s7/YmGL6P6Cp4ylJIuMo41vHs/OBrmVmuZYQepeq/e8JsE4ffe7g29mvA1BtDUFQwuRDb1BHAPMZaoC8al/4mq4lpeOhxriY1gp"
-                +"lKthw1O9/GfiBPP0Yf/Tiyqe9nFQscA00awfV0zLq9qhdZWI3AZJeIZJ8D1JA0rFkbnS/HFHey8iI9KhNIc1zLatnMVjB+vywpK0Lmxv"
-                +"maXXlE59o7khAF1MRwL4e+XTTRm02Q1Ye06HVLbq0dzVmQyPyrnWzoTPduLMxTb/MafS9BN5WdtL8q8DkadQUmA65sOSCcBPaGdxNdWoa"
-                +"OPe8ERYKAqJGtLGRyafZaxd9ldI57GNg==.xpurSbWBpEGuGt4huHJ5ZHhggDV7PASWAz06rgCwCDvc+IgVM6HucUHSCvvvqn5/NVRNS2la2"
-                +"Kva9+7dT1zUPB+HcmgxN7VJs0NKiWS8iZc=.PHEnSewy1m7BwZnQPYPkxTv+bv3/o5Rpf1ToevCaZiU=";
-        
+                + "C6s7/YmGL6P6Cp4ylJIuMo41vHs/OBrmVmuZYQepeq/e8JsE4ffe7g29mvA1BtDUFQwuRDb1BHAPMZaoC8al/4mq4lpeOhxriY1gp"
+                + "lKthw1O9/GfiBPP0Yf/Tiyqe9nFQscA00awfV0zLq9qhdZWI3AZJeIZJ8D1JA0rFkbnS/HFHey8iI9KhNIc1zLatnMVjB+vywpK0Lmxv"
+                + "maXXlE59o7khAF1MRwL4e+XTTRm02Q1Ye06HVLbq0dzVmQyPyrnWzoTPduLMxTb/MafS9BN5WdtL8q8DkadQUmA65sOSCcBPaGdxNdWoa"
+                + "OPe8ERYKAqJGtLGRyafZaxd9ldI57GNg==.xpurSbWBpEGuGt4huHJ5ZHhggDV7PASWAz06rgCwCDvc+IgVM6HucUHSCvvvqn5/NVRNS2la2"
+                + "Kva9+7dT1zUPB+HcmgxN7VJs0NKiWS8iZc=.PHEnSewy1m7BwZnQPYPkxTv+bv3/o5Rpf1ToevCaZiU=";
+
         JSONWebEncryptionTestCase test = new JSONWebEncryptionTestCase();
         PrivateKey privateKey = test.getPrivateKey();
-        
+
         JSONWebToken jwt = new JSONWebToken();
         jwt.setPrivateKey(privateKey);
         jwt.load(token);
@@ -116,7 +115,7 @@ public class JSONWebTokenTestCase {
         JSONObject jwtHeader = jwt.getHeader();
 
         assertEquals(headerObj.getString("alg"), jwtHeader.getString("alg"));
-        
+
         assertEquals("Now is the time for all good men to come to the aid of their country.", jwt.getPlainText());
     }
 }
