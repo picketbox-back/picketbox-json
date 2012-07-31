@@ -99,4 +99,7 @@ public interface PicketBoxJSONMessages {
 
     @Message(id = 20, value = "JSON Web Signature header Missing")
     RuntimeException jsonWebSignatureHeaderMissing();
+
+    @Message(id = 21, value = "Error that can be ignored.")
+    RuntimeException ignorableError(@Cause Throwable e);
 }

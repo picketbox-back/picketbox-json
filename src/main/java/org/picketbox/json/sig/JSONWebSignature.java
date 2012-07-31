@@ -108,7 +108,7 @@ public class JSONWebSignature {
     }
 
     /**
-     * Encode the Payload
+     * Decode the Payload
      *
      * @return
      * @throws ProcessingException
@@ -121,17 +121,11 @@ public class JSONWebSignature {
             throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
 
-        // Find the first period
-        int index = decodedOverall.indexOf(PERIOD);
+        String[] tokens = decodedOverall.split("\\.");
 
-        String encodedHeader = decodedOverall.substring(0, index);
-        String withoutEncodedHeader = decodedOverall.substring(index + 1);
-
-        int secondPeriod = withoutEncodedHeader.indexOf(PERIOD);
-
-        String encodedPayload = withoutEncodedHeader.substring(0, secondPeriod);
-
-        String encodedSignature = withoutEncodedHeader.substring(secondPeriod + 1);
+        String encodedHeader = tokens[0];
+        String encodedPayload = tokens[1];
+        String encodedSignature = tokens[2];
 
         String decodedSignature = null;
 
@@ -142,8 +136,8 @@ public class JSONWebSignature {
         }
 
         // Validation
-        String encodedValue = HmacSha256Util.encode(encodedHeader + PERIOD + encodedPayload);
-        if (encodedValue.equals(decodedSignature) == false) {
+        String hmacEncodedSigValue = HmacSha256Util.encode(encodedHeader + PERIOD + encodedPayload);
+        if (hmacEncodedSigValue.equals(decodedSignature) == false) {
             throw PicketBoxJSONMessages.MESSAGES.jsonWebSignatureValidationFailed();
         }
         JSONWebSignature sig = new JSONWebSignature();
