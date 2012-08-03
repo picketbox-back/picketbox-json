@@ -33,7 +33,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.bouncycastle.util.Arrays;
 import org.json.JSONException;
 import org.picketbox.json.PicketBoxJSONMessages;
 import org.picketbox.json.exceptions.ProcessingException;
@@ -228,7 +227,7 @@ public class JSONWebEncryption {
                 byte[] integrityValue = performMac(cik, builder.toString().getBytes());
                 String encodedIntegrityValue = PicketBoxJSONUtil.b64Encode(integrityValue);
 
-                if (Arrays.constantTimeAreEqual(encodedIntegrityValue.getBytes(), encodedIntegrity.getBytes())) {
+                if (byteEquals(encodedIntegrityValue.getBytes(), encodedIntegrity.getBytes())) {
                     return new String(plainText);
                 } else {
                     throw new RuntimeException("Integrity Checks Failed");
@@ -340,5 +339,30 @@ public class JSONWebEncryption {
         } catch (Exception e) {
             throw PicketBoxJSONMessages.MESSAGES.processingException(e);
         }
+    }
+
+    private boolean byteEquals(byte[] b1, byte[] b2) {
+        // Check if the addresses match
+        if (b1 == b2) {
+            return true;
+        }
+
+        // Check if either one is null
+        if (b1 == null || b2 == null) {
+            return false;
+        }
+
+        // Match on the lengths
+        if (b1.length != b2.length) {
+            return false;
+        }
+
+        // Match each byte
+        int notMatching = 0;
+
+        for (int index = 0; index != b1.length; index++) {
+            notMatching |= (b1[index] ^ b2[index]);
+        }
+        return notMatching == 0;
     }
 }
